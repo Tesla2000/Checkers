@@ -24,13 +24,13 @@ class HumanPlayer(Player):
 
 	def select(self, row, col, game):
 		if game.selected:
-			result = self._move(row, col)
+			result = self._move(row, col, game)
 			if not result:
 				game.selected = None
-				self.select(row, col)
+				self.select(row, col, game)
 
 		pawn = game.board.get_pawn(row, col)
-		if pawn != 0 and pawn.color == self.turn:
+		if pawn != 0 and pawn.color == game.turn:
 			game.selected = pawn
 			game.valid_moves = game.board.get_valid_moves(pawn)
 			return True
@@ -44,7 +44,7 @@ class HumanPlayer(Player):
 			skipped = game.valid_moves[(row, col)]
 			if skipped:
 				game.board.remove(skipped)
-			self.turn = game.change_turn().color
+			game.change_turn()
 		else:
 			return False
 
