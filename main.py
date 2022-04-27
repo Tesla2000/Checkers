@@ -14,12 +14,6 @@ WINDOW = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption('Checkers');
 
 
-def get_input_row_col(pos):
-    x, y = pos
-    row = y // FIELD_SIZE
-    col = x // FIELD_SIZE
-    return row, col
-
 
 def main():
 
@@ -38,9 +32,9 @@ def main():
             if event.type == pygame.QUIT:
                 run = False
 
-            if event.type == pygame.MOUSEBUTTONDOWN:
+            if  isinstance(game.currentPlayer, HumanPlayer) and event.type == pygame.MOUSEBUTTONDOWN:
                 pos = pygame.mouse.get_pos()
-                row, col = get_input_row_col(pos)
+                row, col = game.currentPlayer.get_input_row_col(pos)
                 game.select(row, col)      #currentplayer.select
 
         game.update(WINDOW)
