@@ -1,5 +1,5 @@
 from checkers.constants import FIELD_SIZE
-
+import pygame
 
 class Player:
 	def __init__(self, color_pawn):
@@ -17,6 +17,9 @@ class Player:
 
 	def update_score(self):
 		self.score+=1
+
+
+
 
 
 class HumanPlayer(Player):

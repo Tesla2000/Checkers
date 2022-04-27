@@ -5,6 +5,7 @@ FIELD_SIZE = 800 // COLS
 
 #game constants
 INIT_NUMBER_OF_PAWNS = 12
+INIT_NUMBER_OF_KINGS = 0
 
 #color
 RED = (255, 0, 0)
