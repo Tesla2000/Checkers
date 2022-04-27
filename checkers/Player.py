@@ -4,6 +4,7 @@ from checkers.constants import FIELD_SIZE
 class Player:
 	def __init__(self, color_pawn):
 		self.color = color_pawn
+		self.score = 0
 
 	def get_input_row_col(self, pos):
 		pass
@@ -13,6 +14,9 @@ class Player:
 
 	def _move(self, row, col, game):
 		pass
+
+	def update_score(self):
+		self.score+=1
 
 
 class HumanPlayer(Player):
@@ -43,7 +47,7 @@ class HumanPlayer(Player):
 			game.board.move(game.selected, row, col)
 			skipped = game.valid_moves[(row, col)]
 			if skipped:
-				game.board.remove(skipped)
+				game.board.remove(skipped, self)
 			game.change_turn()
 		else:
 			return False

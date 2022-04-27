@@ -3,7 +3,6 @@ from .Board import Board
 from .constants import BORD, BLACK, BLUE, FIELD_SIZE
 
 
-
 class Game:
 	def __init__(self, bordPlayer, blackPlayer, win):
 		self.bordPlayer = bordPlayer

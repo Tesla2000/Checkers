@@ -1,4 +1,5 @@
-from checkers.constants import ROW, COLS, FIELD_SIZE, GREY, RED, WHITE, BLACK, BORD
+from checkers.constants import ROW, COLS, FIELD_SIZE, GREY, RED, WHITE, BLACK, BORD,\
+	INIT_NUMBER_OF_PAWNS, INIT_NUMBER_OF_KINGS
 import pygame
 from checkers.Pawn import Pawn
 
@@ -6,8 +7,8 @@ from checkers.Pawn import Pawn
 class Board:
 	def __init__(self):
 		self.board = []
-		self.bord_left = self.black_left = 12
-		self.bord_kings = self.black_kings = 0
+		self.bord_left = self.black_left = INIT_NUMBER_OF_PAWNS
+		self.bord_kings = self.black_kings = INIT_NUMBER_OF_KINGS
 		self.create_board()
 
 	def draw_fields(self, window):
@@ -26,7 +27,7 @@ class Board:
 					elif row > 4:
 						self.board[row].append(Pawn(row, col, BORD))
 					else:
-						self.board[row].append(0) #blank piece
+						self.board[row].append(0)  # blank piece
 				else:
 					self.board[row].append(0)
 
@@ -38,8 +39,9 @@ class Board:
 				if pawn != 0:
 					pawn.drawPawn(win)
 
-	def move(self, pawn, row, col): #swapping
-		self.board[pawn.get_row()][pawn.get_col()], self.board[row][col] = self.board[row][col], self.board[pawn.row][pawn.col]
+	def move(self, pawn, row, col):  # swapping
+		self.board[pawn.get_row()][pawn.get_col()], self.board[row][col] = self.board[row][col], self.board[pawn.row][
+			pawn.col]
 		pawn.move(row, col)
 		self.update_king_status(pawn, row)
 
@@ -54,9 +56,10 @@ class Board:
 			else:
 				self.black_kings += 1
 
-	def remove(self, pawns):
+	def remove(self, pawns, currentPlayer):
 		for pawn in pawns:
 			self.board[pawn.row][pawn.col] = 0
+			currentPlayer.update_score()
 			if pawn != 0:
 				if pawn.color == BORD:
 					self.bord_left -= 1
@@ -83,8 +86,9 @@ class Board:
 		if pawn.color == BLACK or pawn.king:
 			valid_moves.update(self.check_left_diagonal(row + 1, min(row + 3, ROW), 1, pawn.color, start_left_col))
 			valid_moves.update(self.check_right_diagonal(row + 1, min(row + 3, ROW), 1, pawn.color, start_right_col))
-
-		return valid_moves
+		#print(valid_moves)
+		#print(self.filter_by_longest_size(valid_moves))
+		return self.filter_by_longest_size(valid_moves)
 
 	def check_left_diagonal(self, start, stop, step, color, left, skipped=[]):
 		valid_moves = {}
@@ -107,8 +111,10 @@ class Board:
 						curr_row = max(row - 3, 0)
 					else:
 						curr_row = min(row + 3, ROW)
-					valid_moves.update(self.check_left_diagonal(row + step, curr_row, step, color, left - 1, skipped=last))
-					valid_moves.update(self.check_right_diagonal(row + step, curr_row, step, color, left + 1, skipped=last))
+					valid_moves.update(
+						self.check_left_diagonal(row + step, curr_row, step, color, left - 1, skipped=last))
+					valid_moves.update(
+						self.check_right_diagonal(row + step, curr_row, step, color, left + 1, skipped=last))
 				break
 			elif current_pawn.color == color:
 				break
@@ -140,8 +146,10 @@ class Board:
 						curr_row = max(row - 3, 0)
 					else:
 						curr_row = min(row + 3, ROW)
-					valid_moves.update(self.check_left_diagonal(row + step_dir, curr_row, step_dir, color, right - 1, skipped=last))
-					valid_moves.update(self.check_right_diagonal(row + step_dir, curr_row, step_dir, color, right + 1, skipped=last))
+					valid_moves.update(
+						self.check_left_diagonal(row + step_dir, curr_row, step_dir, color, right - 1, skipped=last))
+					valid_moves.update(
+						self.check_right_diagonal(row + step_dir, curr_row, step_dir, color, right + 1, skipped=last))
 				break
 			elif current_pawn.color == color:
 				break
@@ -149,59 +157,18 @@ class Board:
 				last = [current_pawn]
 
 			right += 1
-
 		return valid_moves
 
-
-
-'''
-	def get_valid_moves(self, pawn):
-		valid_moves = {}
-		start_left_col = pawn.col - 1
-		start_right_col = pawn.col + 1
-		current_row = pawn.row
-
-		if pawn.color == BORD or pawn.king: #do gory  # I am only looking to above where I am
-			valid_moves.update(self.check_diagonal(start_left_col < 0, current_row - 1 , max(current_row-3, -1), -1, pawn.color, start_left_col)) # left side
-			valid_moves.update(self.check_diagonal(start_right_col >= COLS, current_row - 1, max(current_row - 3, -1), -1, pawn.color, start_right_col)) #right side
-		if pawn.color == BLACK or pawn.king:
-			valid_moves.update(self.check_diagonal(start_left_col < 0, current_row + 1, min(current_row + 3, ROW), 1, pawn.color, start_left_col))
-			valid_moves.update(self.check_diagonal(start_right_col >= COLS, current_row + 1, min(current_row + 3, ROW), 1, pawn.color, start_right_col))
-
-		return valid_moves
-
-	def check_diagonal(self, condition, start_row_pos, stop_row_pos, dir, color, col_on_dir, skipped=[]):
-		valid_moves = {}
-		last = []
-		for row in range(start_row_pos, stop_row_pos, dir):
-			if condition: # no in range of columns    col_on_left < 0
-				break
-			current_pawn = self.board[row][col_on_dir]
-			if current_pawn == 0:
-				if skipped and not last:
-					break
-				elif skipped: #double skip
-					valid_moves[(row, col_on_dir)] = last + skipped  #combining previous with the last
-				else:
-					valid_moves[row, col_on_dir] = last
-
-				if last:       # if we skipped some pawns on the road
-					if dir == -1: #going up
-						current_row = max(row-3, 0)
-					else: #going down
-						current_row = min(row+3, ROW)
-					valid_moves.update(self.check_diagonal(col_on_dir - 1 < 0, row + dir, current_row , dir, color, col_on_dir-1 , skipped= last))
-					valid_moves.update(self.check_diagonal(col_on_dir + 1 >= ROW, row + dir, current_row, dir, color, col_on_dir+1, skipped=last))
-				break			#no more valid moves in current iteration
-			elif current_pawn.color == color:
-				break
-			else:
-				last = [current_pawn] ###
-
-			col_on_dir += dir
-
-		return valid_moves '''
-
-
+	def filter_by_longest_size(self, dict):
+		if not all(map(lambda x: len(x) == 0, dict.values())):
+			size = max(len(x) for x in dict.values())
+			result = {}
+			for (key, value) in dict.items():
+				print(value)
+				if len(value) == size:
+					result.update({key: value})
+			return result
+		else:
+			return dict
 
 
