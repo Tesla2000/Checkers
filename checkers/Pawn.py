@@ -1,6 +1,6 @@
 import pygame
 
-from checkers.constants import BLACK, BORD, FIELD_SIZE, BLUE, KING
+from checkers.constants import BLACK, WHITE, FIELD_SIZE, BLUE, KING
 
 
 class Pawn:
@@ -22,7 +22,7 @@ class Pawn:
 	def setDirection(self):
 		if self.color == BLACK:
 			return 1  # going down
-		if self.color == BORD:
+		if self.color == WHITE:
 			return -1  # going up
 
 	def calculate_pos(self):

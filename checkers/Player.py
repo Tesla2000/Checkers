@@ -1,4 +1,5 @@
-from checkers.constants import FIELD_SIZE
+from checkers.constants import FIELD_SIZE, ROW, COLS
+from checkers.Game import Game
 import pygame
 
 class Player:
@@ -18,8 +19,14 @@ class Player:
 	def update_score(self):
 		self.score+=1
 
-
-
+	def get_all_valid_moves(self, board):
+		all_possible_moves= {}
+		for row in range(ROW):
+			for col in range(COLS):
+				pawn = board.get_pawn(row, col)
+				if pawn != 0 and pawn.color == self.color:
+					all_possible_moves.update(board.get_valid_moves(pawn))
+		return all_possible_moves
 
 
 class HumanPlayer(Player):

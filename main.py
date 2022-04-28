@@ -1,5 +1,5 @@
 import pygame
-from checkers.constants import WIDTH, HEIGHT, BORD, BLACK, FIELD_SIZE, WHITE
+from checkers.constants import WIDTH, HEIGHT, WHITE, BLACK, FIELD_SIZE, WHITE
 from checkers.Board import Board
 from checkers.Player import HumanPlayer, BotPlayer
 from checkers.Game import Game
@@ -18,16 +18,26 @@ def display_counters(player, x, y):
     text = font.render(str(rgb_to_name(player.color,spec='css3')) + ' player: ' + str(player.score),True, WHITE)
     WINDOW.blit(text,(x,y))
 
-def win_message(player):
+def win_message(player_color):
     font = pygame.font.SysFont(None, 50)
-    text = font.render(str(rgb_to_name(player, spec='css3')) + ' player WIN ', True, WHITE)
-    WINDOW.blit(text, (800, 50))
+    text = font.render(str(rgb_to_name(player_color, spec='css3')) + ' player WIN ', True, WHITE)
+    WINDOW.blit(text, (800, 80))
 
+def lose_message(player):
+    font = pygame.font.SysFont(None, 50)
+    text = font.render(str(rgb_to_name(player.color, spec='css3')) + ' player LOSE ', True, WHITE)
+    WINDOW.blit(text, (800, 80))
 
 def tie_message():
-    font = pygame.font.SysFont(None, 25)
+    font = pygame.font.SysFont(None, 50)
     text = font.render('TIE!', True, WHITE)
-    WINDOW.blit(text, (WIDTH // 2, HEIGHT // 2))
+    WINDOW.blit(text, (800, 80))
+
+def display_whose_turn(game):
+    font = pygame.font.SysFont(None, 25)
+    game.currentPlayer
+    text = font.render(str(rgb_to_name(game.currentPlayer.color, spec='css3')) + ' player turn ', True, WHITE)
+    WINDOW.blit(text, (800, 50))
 
 
 def main():
@@ -42,7 +52,7 @@ def main():
     run = True
 
    # board = Board()
-    bordPlayer = HumanPlayer(BORD)
+    bordPlayer = HumanPlayer(WHITE)
     blackPlayer = HumanPlayer(BLACK)
     clock = pygame.time.Clock()  #constant frame rate
     game = Game(bordPlayer, blackPlayer, WINDOW)
@@ -50,18 +60,33 @@ def main():
     while run:
         clock.tick(FPS)
         position = None
-        display_counters(game.bordPlayer, 800, 10)
+        display_counters(game.whitePlayer, 800, 10)
         display_counters(game.blackPlayer, 800, 30)
+        display_whose_turn(game)
         pygame.display.update()
 
         if isinstance(game.currentPlayer, BotPlayer):
             pass
 
+        if game.tie():
+            tie_message()
+            pygame.display.update()
+            time.sleep(7)
+            run = False
+
         if game.winner() != None:
             win_message(game.winner())
             pygame.display.update()
-            time.sleep(10)
+            time.sleep(7)
             run = False
+
+        if game.loser() != None:
+            lose_message(game.loser())
+            pygame.display.update()
+            time.sleep(7)
+            run = False
+
+
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
