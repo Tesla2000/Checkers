@@ -1,9 +1,23 @@
 import pygame
+from webcolors import rgb_to_name
+
 from .Board import Board
-from .constants import WHITE, BLACK, BLUE, FIELD_SIZE, LIMIT_OF_ONLY_KINGS_MOVE
+from .constants import WHITE, BLACK, BLUE, FIELD_SIZE, LIMIT_OF_ONLY_KINGS_MOVE, HEIGHT, GREY
 
 
 class Game:
+
+	def display_counters(self, player, x, y):
+		font = pygame.font.SysFont(None, 35)
+		text = font.render(str(rgb_to_name(player.color, spec='css3')) + ' player: ' + str(player.score), True, GREY)
+		self.win.blit(text, (x, y))
+
+	def display_whose_turn(self):
+		font = pygame.font.SysFont(None, 35)
+		self.currentPlayer
+		text = font.render(str(rgb_to_name(self.currentPlayer.color, spec='css3')) + ' player turn ', True, GREY)
+		self.win.blit(text, (820, 80))
+
 	def __init__(self, whitePlayer, blackPlayer, win):
 		self.whitePlayer = whitePlayer
 		self.blackPlayer = blackPlayer
@@ -14,6 +28,11 @@ class Game:
 	def update(self, win):
 		self.board.draw_board(win)
 		self.show_valid_moves(self.valid_moves)
+		pygame.draw.line(win, BLACK, (800, 0), (800, HEIGHT))
+		pygame.draw.rect(win, WHITE, (810, 10, 380, 150))
+		self.display_counters(self.whitePlayer, 820, 20)
+		self.display_counters(self.blackPlayer, 820, 50)
+		self.display_whose_turn()
 		pygame.display.update()
 
 
