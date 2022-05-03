@@ -19,14 +19,8 @@ class Player:
 	def update_score(self):
 		self.score+=1
 
-	def get_all_valid_moves(self, board):
-		all_possible_moves= {}
-		for row in range(ROW):
-			for col in range(COLS):
-				pawn = board.get_pawn(row, col)
-				if pawn != 0 and pawn.color == self.color:
-					all_possible_moves.update(board.get_valid_moves(pawn))
-		return all_possible_moves
+
+
 
 
 class HumanPlayer(Player):
@@ -46,9 +40,13 @@ class HumanPlayer(Player):
 		pawn = game.board.get_pawn(row, col)
 		if pawn != 0 and pawn.color == game.turn:
 			game.selected = pawn
-			game.valid_moves = game.board.get_valid_moves(pawn)
-			return True
-
+			canGoInside = False
+			for move in game.board.get_valid_moves(pawn).items():
+				if move in game.board.get_all_valid_moves(self).items():
+					canGoInside = True
+			if canGoInside:
+				game.valid_moves = game.board.get_valid_moves(pawn)
+			return canGoInside
 		return False
 
 	def _move(self, row, col, game):

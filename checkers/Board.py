@@ -1,3 +1,5 @@
+import coalesce as coalesce
+
 from checkers.constants import ROW, COLS, FIELD_SIZE, GREY, RED, WHITE, BLACK, WHITE,\
 	INIT_NUMBER_OF_PAWNS, INIT_NUMBER_OF_KINGS
 import pygame
@@ -74,6 +76,23 @@ class Board:
 
 		return None
 
+	def get_all_valid_moves(self, player):
+		jump_moves = {}
+		single_moves = {}
+		for row in range(ROW):
+			for col in range(COLS):
+				if self.board[row][col] != 0 and self.board[row][col].color == player.color:
+					self.segragate_moves(self.get_valid_moves(self.board[row][col]), jump_moves, single_moves)
+					self.filter_by_longest_size(jump_moves)
+		return jump_moves or single_moves
+
+	def segragate_moves(self, dict, double_moves, single_moves):
+		for i, (key, value) in enumerate(dict.items()):
+			if len(value) != 0:
+				double_moves.update({key: value})
+			else:
+				single_moves.update({key: value})
+
 	def get_valid_moves(self, pawn):
 		valid_moves = {}
 		start_left_col = pawn.col - 1
@@ -82,16 +101,17 @@ class Board:
 		step_up = -1
 		step_down = 1
 
+
 		if pawn.color == WHITE or pawn.king:
 			valid_moves.update(self.check_left_diagonal(row - 1, max(row - 3, -1), step_up, pawn.color, start_left_col))
 			valid_moves.update(self.check_right_diagonal(row - 1, max(row - 3, -1), step_up, pawn.color, start_right_col))
+
 
 		if pawn.color == BLACK or pawn.king:
 			valid_moves.update(self.check_left_diagonal(row + 1, min(row + 3, ROW), step_down, pawn.color, start_left_col))
 			valid_moves.update(self.check_right_diagonal(row + 1, min(row + 3, ROW), step_down, pawn.color, start_right_col))
 
 		return self.filter_by_longest_size(valid_moves)
-
 
 
 
@@ -107,19 +127,24 @@ class Board:
 				if skipped and not last:
 					break
 				elif skipped:
-					valid_moves[(row, left)] = last + skipped
+					valid_moves[(row, left)] = last + skipped #dodaje do listy pominietych ostatni pionek
 				else:
-					valid_moves[(row, left)] = last
+					valid_moves[(row, left)] = last  #nie ma pominietych, kolejny mozliwy ruch to najblizszy ruch
 
 				if last:
-					if step < 0:
+					if step < 0:   #step_up
 						curr_row = max(row - 3, 0)
-					else:
+					else:           #step_down
 						curr_row = min(row + 3, ROW)
 					valid_moves.update(
 						self.check_left_diagonal(row + step, curr_row, step, color, left - 1, skipped=last))
 					valid_moves.update(
 						self.check_right_diagonal(row + step, curr_row, step, color, left + 1, skipped=last))
+
+					valid_moves.update(
+						self.check_left_diagonal(row - step, max(row - 3, 0), -step, color, left - 1, skipped=last))
+					valid_moves.update(
+						self.check_right_diagonal(row - step, max(row - 3, 0), -step, color, left + 1, skipped=last))
 				break
 			elif current_pawn.color == color:
 				break

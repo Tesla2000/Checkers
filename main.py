@@ -32,16 +32,7 @@ def tie_message():
 
 
 
-
-
 def main():
-    '''
-    print("Do You want to type next move from console? Y/N")
-    answer = input()
-    if(answer =='Y'):
-        not_from_console= False
-        '''
-
 
     run = True
 
@@ -59,6 +50,13 @@ def main():
         if isinstance(game.currentPlayer, BotPlayer):
             pass
 
+
+        if game.loser() != None:
+              lose_message(game.loser())
+              pygame.display.update()
+              time.sleep(7)
+              run = False
+
         if game.tie():
             tie_message()
             pygame.display.update()
@@ -71,39 +69,17 @@ def main():
             time.sleep(7)
             run = False
 
-        if game.loser() != None:
-            lose_message(game.loser())
-            pygame.display.update()
-            time.sleep(7)
-            run = False
-
-
-
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
 
-            if not_from_console and isinstance(game.currentPlayer, HumanPlayer) and event.type == pygame.MOUSEBUTTONDOWN:
+            if isinstance(game.currentPlayer, HumanPlayer) and event.type == pygame.MOUSEBUTTONDOWN:
                 position = pygame.mouse.get_pos()
                 row, col = game.currentPlayer.get_input_row_col(position)
                 game.currentPlayer.select(row, col, game)  #currentplayer.select
 
         #row, col = game.currentPlayer.get_input_row_col(position)
         #game.currentPlayer.select(row, col, game)  # currentplayer.select
-        '''
-        if not not_from_console and isinstance(game.currentPlayer, HumanPlayer):
-            print('Get start row')
-            start_row =int(input())
-            print('Get start col')
-            start_col = int(input())
-            game.currentPlayer.select(start_row, start_col, game)
-            
-            print('Get end row')
-            end_row = int(input())
-            print('Get end col')
-            end_col = int(input())
-            game.currentPlayer.select(end_row, end_col, game)
-            '''
 
 
         game.update(WINDOW)

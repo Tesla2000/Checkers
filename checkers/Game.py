@@ -1,6 +1,5 @@
 import pygame
 from webcolors import rgb_to_name
-
 from .Board import Board
 from .constants import WHITE, BLACK, BLUE, FIELD_SIZE, LIMIT_OF_ONLY_KINGS_MOVE, HEIGHT, GREY
 
@@ -48,7 +47,7 @@ class Game:
 
 
 	def loser(self):
-		if not self.currentPlayer.get_all_valid_moves(self.board):
+		if not self.board.get_all_valid_moves(self.currentPlayer):
 			return self.currentPlayer
 		else:
 			return None
@@ -58,7 +57,6 @@ class Game:
 			return True
 		else:
 			return False
-
 
 	def count_last_kings_moves(self):
 		if(self.board.white_left == self.board.white_kings) and (self.board.black_left == self.board.black_kings):
@@ -78,12 +76,4 @@ class Game:
 		for move in valid_moves:
 			row, col = move
 			pygame.draw.rect(self.win, BLUE, (col * FIELD_SIZE, row * FIELD_SIZE, FIELD_SIZE, FIELD_SIZE))
-
-
-
-
-
-
-
-
 
