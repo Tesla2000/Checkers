@@ -38,7 +38,7 @@ def main():
 
    # board = Board()
     bordPlayer = HumanPlayer(WHITE)
-    blackPlayer = HumanPlayer(BLACK)
+    blackPlayer = BotPlayer(BLACK)
     clock = pygame.time.Clock()  #constant frame rate
     game = Game(bordPlayer, blackPlayer, WINDOW)
 
@@ -48,7 +48,8 @@ def main():
         position = None
 
         if isinstance(game.currentPlayer, BotPlayer):
-            pass
+            value, new_board = game.currentPlayer.min_max(game.board, 4, WHITE, game)
+            game.ai_move(new_board)
 
 
         if game.loser() != None:
@@ -68,6 +69,8 @@ def main():
             pygame.display.update()
             time.sleep(7)
             run = False
+
+
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:

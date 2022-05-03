@@ -62,6 +62,8 @@ class Game:
 		if(self.board.white_left == self.board.white_kings) and (self.board.black_left == self.board.black_kings):
 			self.last_kings_moves += 1
 
+
+
 	def change_turn(self):
 		self.count_last_kings_moves()
 		self.valid_moves = {}
@@ -77,3 +79,6 @@ class Game:
 			row, col = move
 			pygame.draw.rect(self.win, BLUE, (col * FIELD_SIZE, row * FIELD_SIZE, FIELD_SIZE, FIELD_SIZE))
 
+	def ai_move(self, board):
+		self.board = board
+		self.change_turn()

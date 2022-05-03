@@ -1,7 +1,9 @@
+from copy import deepcopy
+
 from checkers.constants import FIELD_SIZE, ROW, COLS
 from checkers.Game import Game
 import pygame
-
+from math import inf
 class Player:
 	def __init__(self, color_pawn):
 		self.color = color_pawn
@@ -62,6 +64,55 @@ class HumanPlayer(Player):
 
 		return True
 
+
 class BotPlayer(Player):
+
+	def min_max(self, board, depth, max_player, game):
+		if depth == 0 or board.winner() != None:
+			return board.evaluate(), board
+
+		if max_player:  #maksymalizuje
+			maxEval = -inf
+			best_move = None
+			for move in self.get_all_moves(board, self.color, game):
+				evaluation = self.min_max(move, depth - 1, False, game)[0]
+				maxEval = max(maxEval, evaluation)
+				if maxEval == evaluation:
+					best_move = move
+			return maxEval, best_move
+		else:
+			minEval = inf
+			best_move = None
+			for move in self.get_all_moves(board, self.color, game):
+				evaluation = self.min_max(move, depth - 1, True, game)[0]
+				minEval = min(minEval, evaluation)
+				if minEval == evaluation:
+					best_move = move
+			return minEval, best_move
+
 	def get_input_row_col(self, pos):
 		pass
+
+	def select(self, row, col, game):
+		pass
+
+	def _move(self, row, col, game):
+		pass
+
+	def get_all_moves(self, board, color, game):
+	    moves = []
+	    for pawn in board.get_all_pawns(self):
+	        valid_moves = board.get_all_valid_moves_for(self, pawn)
+	        for move, skip in valid_moves.items():
+	            temp_board = deepcopy(board)
+	            temp_pawn = temp_board.get_pawn(pawn.row, pawn.col)
+	            new_board = self.simulate_move(temp_pawn, move, temp_board, game, skip)
+	            moves.append(new_board)
+	    return moves
+
+	def simulate_move(self, pawn, move, board, game, skip):
+		board.move(pawn, move[0], move[1])
+		if skip:
+			board.remove(skip, self)
+
+		return board

@@ -86,12 +86,38 @@ class Board:
 					self.filter_by_longest_size(jump_moves)
 		return jump_moves or single_moves
 
+
+	def get_all_valid_moves_for(self, player, pawn):
+		all_moves = {}
+		for row in range(ROW):
+			for col in range(COLS):
+				if self.board[row][col] == pawn:
+					for (key, value) in self.get_valid_moves(self.board[row][col]).items():
+						if (key, value) in self.get_all_valid_moves(player).items():
+							all_moves.update({key: value})
+
+					return all_moves
+
+
+
 	def segragate_moves(self, dict, double_moves, single_moves):
-		for i, (key, value) in enumerate(dict.items()):
+		for (key, value) in dict.items():
 			if len(value) != 0:
 				double_moves.update({key: value})
 			else:
 				single_moves.update({key: value})
+
+	def evaluate(self):
+		return self.white_left - self.black_left + (self.white_kings * 0.5 - self.black_kings * 0.5)
+
+
+	def get_all_pawns(self, player):
+		pawns = []
+		for row in range(ROW):
+			for col in range(COLS):
+				if self.board[row][col] != 0 and self.board[row][col].color == player.color:
+					pawns.append(self.board[row][col])
+		return pawns
 
 	def get_valid_moves(self, pawn):
 		valid_moves = {}
