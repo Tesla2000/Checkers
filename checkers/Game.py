@@ -1,6 +1,7 @@
 import pygame
 from webcolors import rgb_to_name
 from .Board import Board
+from .Tester import Tester
 from .constants import WHITE, BLACK, BLUE, FIELD_SIZE, LIMIT_OF_ONLY_KINGS_MOVE, HEIGHT, GREY
 
 
@@ -11,6 +12,13 @@ class Game:
 		text = font.render(str(rgb_to_name(player.color, spec='css3')) + ' player: ' + str(player.score), True, GREY)
 		self.win.blit(text, (x, y))
 
+	def display_msg(self, msg, x, y):
+		font = pygame.font.SysFont(None, 35)
+		text = font.render(str(msg), True, WHITE)
+		self.win.blit(text, (x, y))
+
+
+
 	def display_whose_turn(self):
 		font = pygame.font.SysFont(None, 35)
 		self.currentPlayer
@@ -20,11 +28,12 @@ class Game:
 	def __init__(self, whitePlayer, blackPlayer, win):
 		self.whitePlayer = whitePlayer
 		self.blackPlayer = blackPlayer
+		self.tester = Tester()
 		self.currentPlayer = whitePlayer
 		self.reset()
 		self.win = win
 
-	def update(self, win):
+	def update(self, win, time, counter):
 		self.board.draw_board(win)
 		self.show_valid_moves(self.valid_moves)
 		pygame.draw.line(win, BLACK, (800, 0), (800, HEIGHT))
@@ -32,6 +41,8 @@ class Game:
 		self.display_counters(self.whitePlayer, 820, 20)
 		self.display_counters(self.blackPlayer, 820, 50)
 		self.display_whose_turn()
+		self.display_msg(time, 820, 180)
+		self.display_msg(counter, 820, 210)
 		pygame.display.update()
 
 

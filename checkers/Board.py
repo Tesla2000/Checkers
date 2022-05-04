@@ -1,6 +1,6 @@
 import coalesce as coalesce
 
-from checkers.constants import ROW, COLS, FIELD_SIZE, GREY, RED, WHITE, BLACK, WHITE,\
+from checkers.constants import ROW, COLS, FIELD_SIZE, GREY, RED, BLACK, WHITE, \
 	INIT_NUMBER_OF_PAWNS, INIT_NUMBER_OF_KINGS
 import pygame
 from checkers.Pawn import Pawn
@@ -86,7 +86,6 @@ class Board:
 					self.filter_by_longest_size(jump_moves)
 		return jump_moves or single_moves
 
-
 	def get_all_valid_moves_for(self, player, pawn):
 		all_moves = {}
 		for row in range(ROW):
@@ -98,8 +97,6 @@ class Board:
 
 					return all_moves
 
-
-
 	def segragate_moves(self, dict, double_moves, single_moves):
 		for (key, value) in dict.items():
 			if len(value) != 0:
@@ -107,9 +104,11 @@ class Board:
 			else:
 				single_moves.update({key: value})
 
-	def evaluate(self):
-		return self.white_left - self.black_left + (self.white_kings * 0.5 - self.black_kings * 0.5)
-
+	def evaluate(self, turn):  # maximize bot moves -> black_left , prioritize the king
+		if turn == BLACK:
+			return self.black_left - self.white_left + (self.black_kings * 0.5 - self.white_kings * 0.5)
+		else:
+			return self.white_left - self.black_left + (self.white_kings * 0.5 - self.black_kings * 0.5)
 
 	def get_all_pawns(self, player):
 		pawns = []
@@ -127,19 +126,18 @@ class Board:
 		step_up = -1
 		step_down = 1
 
-
 		if pawn.color == WHITE or pawn.king:
 			valid_moves.update(self.check_left_diagonal(row - 1, max(row - 3, -1), step_up, pawn.color, start_left_col))
-			valid_moves.update(self.check_right_diagonal(row - 1, max(row - 3, -1), step_up, pawn.color, start_right_col))
-
+			valid_moves.update(
+				self.check_right_diagonal(row - 1, max(row - 3, -1), step_up, pawn.color, start_right_col))
 
 		if pawn.color == BLACK or pawn.king:
-			valid_moves.update(self.check_left_diagonal(row + 1, min(row + 3, ROW), step_down, pawn.color, start_left_col))
-			valid_moves.update(self.check_right_diagonal(row + 1, min(row + 3, ROW), step_down, pawn.color, start_right_col))
+			valid_moves.update(
+				self.check_left_diagonal(row + 1, min(row + 3, ROW), step_down, pawn.color, start_left_col))
+			valid_moves.update(
+				self.check_right_diagonal(row + 1, min(row + 3, ROW), step_down, pawn.color, start_right_col))
 
 		return self.filter_by_longest_size(valid_moves)
-
-
 
 	def check_left_diagonal(self, start, stop, step, color, left, skipped=[]):
 		valid_moves = {}
@@ -153,14 +151,14 @@ class Board:
 				if skipped and not last:
 					break
 				elif skipped:
-					valid_moves[(row, left)] = last + skipped #dodaje do listy pominietych ostatni pionek
+					valid_moves[(row, left)] = last + skipped  # dodaje do listy pominietych ostatni pionek
 				else:
-					valid_moves[(row, left)] = last  #nie ma pominietych, kolejny mozliwy ruch to najblizszy ruch
+					valid_moves[(row, left)] = last  # nie ma pominietych, kolejny mozliwy ruch to najblizszy ruch
 
 				if last:
-					if step < 0:   #step_up
+					if step < 0:  # step_up
 						curr_row = max(row - 3, 0)
-					else:           #step_down
+					else:  # step_down
 						curr_row = min(row + 3, ROW)
 					valid_moves.update(
 						self.check_left_diagonal(row + step, curr_row, step, color, left - 1, skipped=last))
@@ -226,13 +224,7 @@ class Board:
 		else:
 			return dict
 
-
-
-
-
-
-
-###################################################################################################################################
+	###################################################################################################################################
 	def check_right_diagonal_king(self, start, stop, step_dir, color, right, skipped=[]):
 		curr_row = start
 		for row in range(start, stop, step_dir):
@@ -262,9 +254,3 @@ class Board:
 				else:
 					curr_row = min(row + 3, ROW)
 					left += step_dir
-
-
-
-
-
-

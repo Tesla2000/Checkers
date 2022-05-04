@@ -1,9 +1,12 @@
 from copy import deepcopy
 
-from checkers.constants import FIELD_SIZE, ROW, COLS
+from checkers.constants import FIELD_SIZE, ROW, COLS, BLACK
 from checkers.Game import Game
 import pygame
 from math import inf
+
+
+
 class Player:
 	def __init__(self, color_pawn):
 		self.color = color_pawn
@@ -19,10 +22,7 @@ class Player:
 		pass
 
 	def update_score(self):
-		self.score+=1
-
-
-
+		self.score += 1
 
 
 class HumanPlayer(Player):
@@ -67,28 +67,49 @@ class HumanPlayer(Player):
 
 class BotPlayer(Player):
 
-	def min_max(self, board, depth, max_player, game):
+	def min_max(self, board, depth, maximize, game):
 		if depth == 0 or board.winner() != None:
-			return board.evaluate(), board
+			return board.evaluate(self.color), board
 
-		if max_player:  #maksymalizuje
-			maxEval = -inf
+		if maximize:  # maksymalizuje
+			maxEval = float('-inf')
 			best_move = None
-			for move in self.get_all_moves(board, self.color, game):
+			for move in self.get_all_moves(board, game):
+				game.tester.incrementCounter()
 				evaluation = self.min_max(move, depth - 1, False, game)[0]
 				maxEval = max(maxEval, evaluation)
 				if maxEval == evaluation:
 					best_move = move
 			return maxEval, best_move
 		else:
-			minEval = inf
+			minEval = float('inf')
 			best_move = None
-			for move in self.get_all_moves(board, self.color, game):
+			for move in self.get_all_moves(board, game):
+				game.tester.incrementCounter()
 				evaluation = self.min_max(move, depth - 1, True, game)[0]
 				minEval = min(minEval, evaluation)
 				if minEval == evaluation:
 					best_move = move
 			return minEval, best_move
+
+	def get_all_moves(self, board, game):
+		moves = []
+		for pawn in board.get_all_pawns(self):
+			valid_moves = board.get_all_valid_moves_for(self, pawn)
+			for move, skip in valid_moves.items():
+				#self.draw_processing_board(game, pawn)
+				temp_board = deepcopy(board)
+				temp_pawn = temp_board.get_pawn(pawn.row, pawn.col)
+				new_board = self.simulate_move(temp_pawn, move, temp_board, skip)
+				moves.append(new_board)
+		return moves
+
+	def simulate_move(self, pawn, move, board, skip):
+		board.move(pawn, move[0], move[1])
+		if skip:
+			board.remove(skip, self)
+
+		return board
 
 	def get_input_row_col(self, pos):
 		pass
@@ -99,20 +120,11 @@ class BotPlayer(Player):
 	def _move(self, row, col, game):
 		pass
 
-	def get_all_moves(self, board, color, game):
-	    moves = []
-	    for pawn in board.get_all_pawns(self):
-	        valid_moves = board.get_all_valid_moves_for(self, pawn)
-	        for move, skip in valid_moves.items():
-	            temp_board = deepcopy(board)
-	            temp_pawn = temp_board.get_pawn(pawn.row, pawn.col)
-	            new_board = self.simulate_move(temp_pawn, move, temp_board, game, skip)
-	            moves.append(new_board)
-	    return moves
 
-	def simulate_move(self, pawn, move, board, game, skip):
-		board.move(pawn, move[0], move[1])
-		if skip:
-			board.remove(skip, self)
+	def draw_processing_board(self, game, pawn):
+		valid_moves = game.board.get_valid_moves(pawn)
+		game.board.draw_board(game.win)
+		pygame.draw.circle(game.win, (0, 255, 0), (pawn.x, pawn.y), 50, 5)
+		game.show_valid_moves(valid_moves.keys())
+		pygame.display.update()
 
-		return board
