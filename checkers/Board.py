@@ -1,7 +1,7 @@
 import coalesce as coalesce
 
 from checkers.constants import ROW, COLS, FIELD_SIZE, GREY, RED, BLACK, WHITE, \
-	INIT_NUMBER_OF_PAWNS, INIT_NUMBER_OF_KINGS
+	INIT_NUMBER_OF_PAWNS, INIT_NUMBER_OF_KINGS, UP, DOWN, LEFT ,RIGHT
 import pygame
 from checkers.Pawn import Pawn
 
@@ -137,6 +137,8 @@ class Board:
 			valid_moves.update(
 				self.check_right_diagonal(row + 1, min(row + 3, ROW), step_down, pawn.color, start_right_col))
 
+
+
 		return self.filter_by_longest_size(valid_moves)
 
 	def check_left_diagonal(self, start, stop, step, color, left, skipped=[]):
@@ -224,33 +226,23 @@ class Board:
 		else:
 			return dict
 
-	###################################################################################################################################
-	def check_right_diagonal_king(self, start, stop, step_dir, color, right, skipped=[]):
-		curr_row = start
-		for row in range(start, stop, step_dir):
-			if right >= COLS:
-				break
-			current_pawn = self.board[curr_row][right]
-			if current_pawn != 0:
-				return self.check_right_diagonal(start, stop, step_dir, color, right, skipped)
-			else:
-				if step_dir < 0:
-					curr_row = max(row - 3, 0)
-				else:
-					curr_row = min(row + 3, ROW)
-					right += step_dir
+	def king_move(self, row, col, horizontal_dir, vertical_dir, possible_moves, color):
+		next_col = col + horizontal_dir
+		next_row = row + vertical_dir
+		nextPawn = self.get_pawn(next_row, next_col)  # do góry w lewo
+		while nextPawn == 0 and self.check_constraints(horizontal_dir, vertical_dir, next_row, next_col):
+			next_row = row + vertical_dir
+			next_col = col + horizontal_dir
+			nextPawn = self.get_pawn(next_row, next_col)  # do góry w lewo
+		if nextPawn.color != color:
+			possible_moves[(next_row, next_col)] = nextPawn
 
-	def check_left_diagonal_king(self, start, stop, step_dir, color, left, skipped=[]):
-		curr_row = start
-		for row in range(start, stop, step_dir):
-			if left >= COLS:
-				break
-			current_pawn = self.board[curr_row][left]
-			if current_pawn != 0:
-				return self.check_left_diagonal(start, stop, step_dir, color, left, skipped)
-			else:
-				if step_dir < 0:
-					curr_row = max(row - 3, 0)
-				else:
-					curr_row = min(row + 3, ROW)
-					left += step_dir
+	def check_constraints(self, horizontal_dir, vertical_dir, row, col):
+		if horizontal_dir == LEFT and vertical_dir == UP:
+			return row > 1 and col > 1
+		if horizontal_dir == LEFT and vertical_dir == DOWN:
+			return row < ROW - 2 and col > 1
+		if horizontal_dir == RIGHT and vertical_dir == UP:
+			return row > 1 and col < COLS - 2
+		if horizontal_dir == RIGHT and vertical_dir == DOWN:
+			return row < ROW - 2 and col < COLS - 2

@@ -43,7 +43,8 @@ def main():
     blackPlayer = BotPlayer(BLACK)
     clock = pygame.time.Clock()  #constant frame rate
     game = Game(bordPlayer, blackPlayer, WINDOW)
-
+    timer = 0
+    counter = 0
 
     while run:
         clock.tick(FPS)
@@ -83,9 +84,13 @@ def main():
                 run = False
 
             if isinstance(game.currentPlayer, HumanPlayer) and event.type == pygame.MOUSEBUTTONDOWN:
+                game.tester.restCounter()
+                startTime = time.time()
                 position = pygame.mouse.get_pos()
                 row, col = game.currentPlayer.get_input_row_col(position)
                 game.currentPlayer.select(row, col, game)  #currentplayer.select
+                timer = game.tester.measureTimeSince(startTime)
+                counter = game.tester.counter
 
         #row, col = game.currentPlayer.get_input_row_col(position)
         #game.currentPlayer.select(row, col, game)  # currentplayer.select
