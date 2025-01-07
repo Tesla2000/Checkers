@@ -1,10 +1,17 @@
-import pygame
-from checkers.constants import WIDTH, HEIGHT, WHITE, BLACK, FIELD_SIZE, WHITE, GREY, BLUE
-from checkers.Board import Board
-from checkers.Player import HumanPlayer, BotPlayer
-from checkers.Game import Game
-from webcolors import rgb_to_name
 import time
+
+import pygame
+from webcolors import rgb_to_name
+
+from checkers.constants import BLACK
+from checkers.constants import GREY
+from checkers.constants import HEIGHT
+from checkers.constants import WHITE
+from checkers.constants import WIDTH
+from checkers.Game import Game
+from checkers.Player import BotPlayer
+from checkers.Player import HumanPlayer
+from protocols.protocols import Player
 
 
 pygame.init()
@@ -20,7 +27,7 @@ def win_message(player_color):
     text = font.render(str(rgb_to_name(player_color, spec='css3')) + ' player WIN ', True, GREY)
     WINDOW.blit(text, (820, 110))
 
-def lose_message(player):
+def lose_message(player: Player):
     font = pygame.font.SysFont(None, 35)
     text = font.render(str(rgb_to_name(player.color, spec='css3')) + ' player LOSE ', True, GREY)
     WINDOW.blit(text, (820, 110))
@@ -103,5 +110,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
-
